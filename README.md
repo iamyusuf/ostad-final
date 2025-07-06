@@ -63,51 +63,52 @@ graph TB
 ## Repository Structure
 
 ```
-├── finch-frontend/                 # Vue.js frontend application
-│   ├── .github/workflows/        # Frontend CI/CD pipeline
-│   │   └── frontend-ci.yml      # Frontend build, test, deploy
-│   ├── src/                      # Source code
-│   ├── Dockerfile                # Multi-stage production build
-│   ├── .dockerignore            # Docker ignore rules
-│   ├── entrypoint.sh            # Runtime configuration script
-│   └── package.json             # Dependencies and scripts
+├── finch-frontend/               # Vue.js frontend application
+│   ├── .github/workflows/       # Frontend CI/CD pipeline
+│   │   └── frontend-ci.yml     # Frontend build, test, deploy
+│   ├── src/                     # Source code
+│   ├── Dockerfile               # Multi-stage production build
+│   ├── .dockerignore           # Docker ignore rules
+│   ├── entrypoint.sh           # Runtime configuration script
+│   └── package.json            # Dependencies and scripts
 │
-├── finch-backend/                 # Django backend application
-│   ├── .github/workflows/        # Backend CI/CD pipeline
-│   │   └── backend-ci.yml       # Backend build, test, deploy
-│   ├── api/                      # API modules
-│   ├── core/                     # Core application logic
-│   ├── Dockerfile                # Multi-stage production build
-│   ├── .dockerignore            # Docker ignore rules
-│   ├── entrypoint.sh            # Runtime configuration script
-│   └── requirements.txt         # Python dependencies
+├── finch-backend/                # Django backend application
+│   ├── .github/workflows/       # Backend CI/CD pipeline
+│   │   └── backend-ci.yml      # Backend build, test, deploy
+│   ├── api/                     # API modules
+│   ├── core/                    # Core application logic
+│   ├── Dockerfile               # Multi-stage production build
+│   ├── .dockerignore           # Docker ignore rules
+│   ├── entrypoint.sh           # Runtime configuration script
+│   └── requirements.txt        # Python dependencies
 │
-├── kubernetes/                   # Kubernetes manifests
-│   ├── namespace.yaml           # Namespace definition
-│   ├── persistent-volumes.yaml  # Storage definitions
-│   ├── *-deployment.yaml       # Application deployments
-│   ├── ingress.yaml            # Traffic routing
-│   └── secrets/                # Secret management
-│       ├── *.yaml              # Secret definitions
-│       └── manage-secrets.sh   # Secret automation script
-│
-├── monitoring/                   # Monitoring stack
-│   ├── prometheus/              # Metrics collection
-│   │   ├── prometheus.yml      # Prometheus configuration
-│   │   └── alert-rules.yml     # Alerting rules
-│   ├── grafana/                # Visualization
-│   │   └── dashboards/         # Pre-built dashboards
-│   ├── prometheus-deployment.yaml
-│   ├── loki-deployment.yaml
-│   └── grafana-deployment.yaml
-│
-├── docker-compose.yml           # Local development environment
-└── Documentation/               # Comprehensive documentation
-    ├── CI_CD_Setup.md
-    ├── Docker_Containerization.md
-    ├── Kubernetes_Architecture.md
-    ├── Secret_Management.md
-    └── Monitoring_Setup.md
+└── ostad-final/                  # DevOps and deployment configurations
+    ├── kubernetes/              # Kubernetes manifests
+    │   ├── namespace.yaml       # Namespace definition
+    │   ├── persistent-volumes.yaml # Storage definitions
+    │   ├── *-deployment.yaml   # Application deployments
+    │   ├── ingress.yaml        # Traffic routing
+    │   └── secrets/            # Secret management
+    │       ├── *.yaml          # Secret definitions
+    │       └── manage-secrets.sh # Secret automation script
+    │
+    ├── monitoring/              # Monitoring stack
+    │   ├── prometheus/          # Metrics collection
+    │   │   ├── prometheus.yml  # Prometheus configuration
+    │   │   └── alert-rules.yml # Alerting rules
+    │   ├── grafana/            # Visualization
+    │   │   └── dashboards/     # Pre-built dashboards
+    │   ├── prometheus-deployment.yaml
+    │   ├── loki-deployment.yaml
+    │   └── grafana-deployment.yaml
+    │
+    ├── docker-compose.yml       # Local development environment
+    └── Documentation/           # Comprehensive documentation
+        ├── CI_CD_Setup.md
+        ├── Docker_Containerization.md
+        ├── Kubernetes_Architecture.md
+        ├── Secret_Management.md
+        └── Monitoring_Setup.md
 ```
 
 ## Features
