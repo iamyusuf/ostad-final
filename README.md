@@ -60,6 +60,11 @@ graph TB
     LOKI --> GRAFANA
 ```
 
+## Related Repositories
+
+- **Frontend Application**: [finch-frontend](https://github.com/iamyusuf/finch-frontend)
+- **Backend Application**: [finch-backend](https://github.com/iamyusuf/finch-backend)
+
 ## Repository Structure
 
 ```
