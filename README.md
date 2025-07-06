@@ -63,7 +63,7 @@ graph TB
 ## Repository Structure
 
 ```
-├── [finch-frontend/](https://github.com/iamyusuf/finch-frontend)               # Vue.js frontend application
+├── finch-frontend/               # Vue.js frontend application
 │   ├── .github/workflows/       # Frontend CI/CD pipeline
 │   │   └── frontend-ci.yml     # Frontend build, test, deploy
 │   ├── src/                     # Source code
@@ -72,7 +72,7 @@ graph TB
 │   ├── entrypoint.sh           # Runtime configuration script
 │   └── package.json            # Dependencies and scripts
 │
-├── [finch-backend/](https://github.com/iamyusuf/finch-backend)                # Django backend application
+├── finch-backend/                # Django backend application
 │   ├── .github/workflows/       # Backend CI/CD pipeline
 │   │   └── backend-ci.yml      # Backend build, test, deploy
 │   ├── api/                     # API modules
