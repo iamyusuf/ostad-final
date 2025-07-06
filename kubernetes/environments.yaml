@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: finch-staging
+  labels:
+    name: finch-staging
+    environment: staging
+    app: finch
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: finch-production
+  labels:
+    name: finch-production
+    environment: production
+    app: finch

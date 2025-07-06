@@ -1,0 +1,360 @@
+groups:
+  - name: finch-application
+    interval: 30s
+    rules:
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: |
+          (
+            rate(django_http_responses_total_by_status_total{status=~"5.."}[5m]) /
+            rate(django_http_responses_total_by_status_total[5m])
+          ) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+          service: finch-backend
+        annotations:
+          summary: "High error rate detected in Finch backend"
+          description: "Error rate is {{ $value }}% for the last 5 minutes"
+          runbook_url: "https://docs.finch.example.com/runbooks/high-error-rate"
+
+      # High Response Time
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            rate(django_http_request_duration_seconds_bucket[5m])
+          ) > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: finch-backend
+        annotations:
+          summary: "High response time in Finch backend"
+          description: "95th percentile response time is {{ $value }}s"
+
+      # Database Connection Issues
+      - alert: DatabaseConnectionHigh
+        expr: |
+          django_db_connections_total > 80
+        for: 2m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High database connections"
+          description: "Database connections: {{ $value }}"
+
+      # Application Down
+      - alert: ApplicationDown
+        expr: |
+          up{job="finch-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: finch-backend
+        annotations:
+          summary: "Finch backend is down"
+          description: "Finch backend has been down for more than 1 minute"
+
+      # Frontend Down
+      - alert: FrontendDown
+        expr: |
+          up{job="finch-frontend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: finch-frontend
+        annotations:
+          summary: "Finch frontend is down"
+          description: "Finch frontend has been down for more than 1 minute"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            container_memory_working_set_bytes{pod=~"finch-backend-.*"} /
+            container_spec_memory_limit_bytes{pod=~"finch-backend-.*"}
+          ) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          service: finch-backend
+        annotations:
+          summary: "High memory usage in backend pods"
+          description: "Memory usage is {{ $value }}%"
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: |
+          (
+            rate(container_cpu_usage_seconds_total{pod=~"finch-backend-.*"}[5m]) /
+            container_spec_cpu_quota{pod=~"finch-backend-.*"} * container_spec_cpu_period{pod=~"finch-backend-.*"}
+          ) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          service: finch-backend
+        annotations:
+          summary: "High CPU usage in backend pods"
+          description: "CPU usage is {{ $value }}%"
+
+      # Celery Queue Backlog
+      - alert: CeleryQueueBacklog
+        expr: |
+          celery_queue_length > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: celery
+        annotations:
+          summary: "Celery queue backlog detected"
+          description: "Queue length: {{ $value }} tasks"
+
+      # Failed Celery Tasks
+      - alert: FailedCeleryTasks
+        expr: |
+          increase(celery_task_failure_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: critical
+          service: celery
+        annotations:
+          summary: "High number of failed Celery tasks"
+          description: "{{ $value }} tasks failed in the last 5 minutes"
+
+  - name: finch-infrastructure
+    interval: 30s
+    rules:
+      # PostgreSQL Down
+      - alert: PostgreSQLDown
+        expr: |
+          up{job="postgresql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL has been down for more than 1 minute"
+
+      # Redis Down
+      - alert: RedisDown
+        expr: |
+          up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: redis
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been down for more than 1 minute"
+
+      # High Database Connections
+      - alert: PostgreSQLTooManyConnections
+        expr: |
+          pg_stat_database_numbackends > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL has too many connections"
+          description: "PostgreSQL has {{ $value }} connections"
+
+      # Database Slow Queries
+      - alert: PostgreSQLSlowQueries
+        expr: |
+          rate(pg_stat_statements_mean_time_seconds[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL slow queries detected"
+          description: "Average query time: {{ $value }}s"
+
+      # High Redis Memory Usage
+      - alert: RedisHighMemoryUsage
+        expr: |
+          (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis memory usage is {{ $value }}%"
+
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: |
+          (
+            node_filesystem_avail_bytes{mountpoint!~"/boot|/dev"} /
+            node_filesystem_size_bytes{mountpoint!~"/boot|/dev"}
+          ) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+          service: infrastructure
+        annotations:
+          summary: "Disk space is low"
+          description: "Available disk space: {{ $value }}%"
+
+      # Node Down
+      - alert: NodeDown
+        expr: |
+          up{job="kubernetes-nodes"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: infrastructure
+        annotations:
+          summary: "Kubernetes node is down"
+          description: "Node {{ $labels.instance }} has been down for more than 1 minute"
+
+  - name: finch-kubernetes
+    interval: 30s
+    rules:
+      # Pod CrashLooping
+      - alert: PodCrashLooping
+        expr: |
+          increase(kube_pod_container_status_restarts_total{namespace=~"finch-.*"}[5m]) > 3
+        for: 2m
+        labels:
+          severity: critical
+          service: kubernetes
+        annotations:
+          summary: "Pod is crash looping"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is crash looping"
+
+      # Pod Not Ready
+      - alert: PodNotReady
+        expr: |
+          kube_pod_status_ready{condition="false", namespace=~"finch-.*"} == 1
+        for: 5m
+        labels:
+          severity: warning
+          service: kubernetes
+        annotations:
+          summary: "Pod is not ready"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is not ready"
+
+      # Deployment Rollout Stuck
+      - alert: DeploymentRolloutStuck
+        expr: |
+          kube_deployment_status_observed_generation{namespace=~"finch-.*"} !=
+          kube_deployment_metadata_generation{namespace=~"finch-.*"}
+        for: 10m
+        labels:
+          severity: warning
+          service: kubernetes
+        annotations:
+          summary: "Deployment rollout is stuck"
+          description: "Deployment {{ $labels.deployment }} rollout is stuck"
+
+      # HPA Unable to Scale
+      - alert: HPAUnableToScale
+        expr: |
+          kube_hpa_status_condition{condition="AbleToScale", status="false"} == 1
+        for: 5m
+        labels:
+          severity: warning
+          service: kubernetes
+        annotations:
+          summary: "HPA unable to scale"
+          description: "HPA {{ $labels.hpa }} is unable to scale"
+
+      # PVC Usage High
+      - alert: PVCUsageHigh
+        expr: |
+          (
+            kubelet_volume_stats_used_bytes /
+            kubelet_volume_stats_capacity_bytes
+          ) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          service: storage
+        annotations:
+          summary: "PVC usage is high"
+          description: "PVC {{ $labels.persistentvolumeclaim }} usage is {{ $value }}%"
+
+  - name: finch-security
+    interval: 60s
+    rules:
+      # Unauthorized API Calls
+      - alert: UnauthorizedAPICalls
+        expr: |
+          increase(apiserver_audit_total{verb!="get",objectRef_resource="secrets"}[5m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+          service: security
+        annotations:
+          summary: "Unauthorized API calls detected"
+          description: "{{ $value }} unauthorized calls to secrets API"
+
+      # Failed Login Attempts
+      - alert: FailedLoginAttempts
+        expr: |
+          increase(django_login_attempts_total{status="failed"}[5m]) > 20
+        for: 2m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "High number of failed login attempts"
+          description: "{{ $value }} failed login attempts in 5 minutes"
+
+      # Certificate Expiry
+      - alert: CertificateExpiringSoon
+        expr: |
+          (cert_expiry_timestamp - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "Certificate expiring soon"
+          description: "Certificate {{ $labels.job }} expires in {{ $value }} days"
+
+  - name: finch-business
+    interval: 60s
+    rules:
+      # Payment Processing Errors
+      - alert: PaymentProcessingErrors
+        expr: |
+          increase(payment_transaction_total{status="failed"}[5m]) > 5
+        for: 2m
+        labels:
+          severity: critical
+          service: payments
+        annotations:
+          summary: "High payment processing errors"
+          description: "{{ $value }} payment failures in 5 minutes"
+
+      # Order Processing Slow
+      - alert: OrderProcessingSlow
+        expr: |
+          histogram_quantile(0.95,
+            rate(order_processing_duration_seconds_bucket[5m])
+          ) > 30
+        for: 5m
+        labels:
+          severity: warning
+          service: orders
+        annotations:
+          summary: "Order processing is slow"
+          description: "95th percentile order processing time: {{ $value }}s"
+
+      # Inventory Low
+      - alert: InventoryLow
+        expr: |
+          inventory_stock_level < 10
+        for: 1h
+        labels:
+          severity: warning
+          service: inventory
+        annotations:
+          summary: "Low inventory detected"
+          description: "Product {{ $labels.product }} has {{ $value }} items left"
