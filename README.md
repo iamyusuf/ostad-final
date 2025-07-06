@@ -64,23 +64,23 @@ graph TB
 
 ```
 ├── finch-frontend/                 # Vue.js frontend application
-│   ├── src/                       # Source code
-│   ├── Dockerfile                 # Multi-stage production build
-│   ├── .dockerignore             # Docker ignore rules
-│   ├── entrypoint.sh             # Runtime configuration script
-│   └── package.json              # Dependencies and scripts
+│   ├── .github/workflows/        # Frontend CI/CD pipeline
+│   │   └── frontend-ci.yml      # Frontend build, test, deploy
+│   ├── src/                      # Source code
+│   ├── Dockerfile                # Multi-stage production build
+│   ├── .dockerignore            # Docker ignore rules
+│   ├── entrypoint.sh            # Runtime configuration script
+│   └── package.json             # Dependencies and scripts
 │
 ├── finch-backend/                 # Django backend application
+│   ├── .github/workflows/        # Backend CI/CD pipeline
+│   │   └── backend-ci.yml       # Backend build, test, deploy
 │   ├── api/                      # API modules
 │   ├── core/                     # Core application logic
 │   ├── Dockerfile                # Multi-stage production build
 │   ├── .dockerignore            # Docker ignore rules
 │   ├── entrypoint.sh            # Runtime configuration script
 │   └── requirements.txt         # Python dependencies
-│
-├── .github/workflows/            # CI/CD pipeline definitions
-│   ├── frontend-ci.yml          # Frontend build, test, deploy
-│   └── backend-ci.yml           # Backend build, test, deploy
 │
 ├── kubernetes/                   # Kubernetes manifests
 │   ├── namespace.yaml           # Namespace definition
